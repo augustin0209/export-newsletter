@@ -146,4 +146,8 @@ LOGGING = {
 # Authentication settings
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'newsletter_list'
-LOGOUT_REDIRECT_URL = 'login' 
+LOGOUT_REDIRECT_URL = 'login'
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.railway.app"
+] 
