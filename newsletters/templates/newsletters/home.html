@@ -1,0 +1,65 @@
+{% extends 'newsletters/base.html' %}
+
+{% block title %}Accueil - Gestionnaire de Newsletter{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Newsletters</h5>
+                <p class="card-text">Gérez vos newsletters et planifiez leurs envois.</p>
+                <a href="{% url 'newsletter_list' %}" class="btn btn-primary">Voir les newsletters</a>
+                <a href="{% url 'newsletter_create' %}" class="btn btn-success">Créer une newsletter</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card mb-4">
+            <div class="card-body">
+                <h5 class="card-title">Abonnés</h5>
+                <p class="card-text">Gérez votre liste d'abonnés et importez de nouveaux contacts.</p>
+                <a href="{% url 'subscriber_list' %}" class="btn btn-primary">Voir les abonnés</a>
+                <a href="{% url 'subscriber_create' %}" class="btn btn-success">Ajouter un abonné</a>
+                <a href="{% url 'subscriber_import' %}" class="btn btn-info">Importer des abonnés</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Statistiques</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3>{{ newsletter_count }}</h3>
+                                <p class="text-muted">Newsletters</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3>{{ subscriber_count }}</h3>
+                                <p class="text-muted">Abonnés actifs</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-light">
+                            <div class="card-body text-center">
+                                <h3>{{ sent_count }}</h3>
+                                <p class="text-muted">Newsletters envoyées</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

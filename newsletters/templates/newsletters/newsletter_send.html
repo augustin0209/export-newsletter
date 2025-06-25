@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+
+{% block title %}Envoyer {{ newsletter.titre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Envoyer la newsletter</h2>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ newsletter.titre }}</h5>
+            <p class="card-text">
+                <strong>Objet :</strong> {{ newsletter.objet }}<br>
+                <strong>Date de création :</strong> {{ newsletter.date_creation|date:"d/m/Y H:i" }}<br>
+                <strong>Statut :</strong> {{ newsletter.statut }}
+            </p>
+        </div>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Sélection des destinataires</h5>
+            </div>
+            <div class="card-body">
+                {% if abonnes %}
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" name="destinataires" value="tous" id="tous">
+                        <label class="form-check-label" for="tous">
+                            Envoyer à tous les abonnés ({{ abonnes.count }})
+                        </label>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Ou sélectionnez des destinataires spécifiques :</label>
+                        <div class="list-group">
+                            {% for abonne in abonnes %}
+                            <div class="list-group-item">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="destinataires" value="{{ abonne.id }}" id="abonne_{{ abonne.id }}">
+                                    <label class="form-check-label" for="abonne_{{ abonne.id }}">
+                                        {{ abonne.email }}
+                                        {% if abonne.nom or abonne.prenom %}
+                                        ({{ abonne.prenom }} {{ abonne.nom }})
+                                        {% endif %}
+                                    </label>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% else %}
+                    <div class="alert alert-warning">
+                        Aucun abonné actif trouvé. Veuillez d'abord ajouter des abonnés.
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Options d'envoi</h5>
+            </div>
+            <div class="card-body">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" name="planifier" id="planifier">
+                    <label class="form-check-label" for="planifier">
+                        Planifier l'envoi
+                    </label>
+                </div>
+                
+                <div class="mb-3" id="date_envoi_div" style="display: none;">
+                    <label for="date_envoi" class="form-label">Date et heure d'envoi :</label>
+                    <input type="datetime-local" class="form-control" id="date_envoi" name="date_envoi">
+                </div>
+            </div>
+        </div>
+        
+        <div class="d-flex gap-2">
+            <button type="submit" class="btn btn-primary" {% if not abonnes %}disabled{% endif %}>Envoyer</button>
+            <a href="{% url 'newsletter_detail' pk=newsletter.pk %}" class="btn btn-secondary">Annuler</a>
+        </div>
+    </form>
+</div>
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const planifierCheckbox = document.getElementById('planifier');
+    const dateEnvoiDiv = document.getElementById('date_envoi_div');
+    const tousCheckbox = document.getElementById('tous');
+    const abonnesCheckboxes = document.querySelectorAll('input[name="destinataires"]:not([value="tous"])');
+    
+    // Gérer l'affichage de la date d'envoi
+    planifierCheckbox.addEventListener('change', function() {
+        dateEnvoiDiv.style.display = this.checked ? 'block' : 'none';
+    });
+    
+    // Gérer la sélection "tous"
+    tousCheckbox.addEventListener('change', function() {
+        abonnesCheckboxes.forEach(checkbox => {
+            checkbox.disabled = this.checked;
+            if (this.checked) {
+                checkbox.checked = false;
+            }
+        });
+    });
+    
+    // Désactiver "tous" si des abonnés spécifiques sont sélectionnés
+    abonnesCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            if (this.checked) {
+                tousCheckbox.checked = false;
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

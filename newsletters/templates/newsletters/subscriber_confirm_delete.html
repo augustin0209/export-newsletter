@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block title %}Supprimer l'abonné{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center mb-0">Confirmer la suppression</h3>
+                </div>
+                <div class="card-body">
+                    <p class="text-center">Êtes-vous sûr de vouloir supprimer l'abonné "{{ subscriber.email }}" ?</p>
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                            <a href="{% url 'subscriber_list' %}" class="btn btn-secondary">
+                                <i class="fas fa-times"></i> Annuler
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

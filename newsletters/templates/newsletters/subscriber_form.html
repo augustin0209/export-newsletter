@@ -1,0 +1,48 @@
+{% extends 'newsletters/base.html' %}
+
+{% block title %}Ajouter un Abonné{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">Ajouter un Abonné</h1>
+        
+        <form method="post" class="mt-4">
+            {% csrf_token %}
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                    {{ form.email.errors }}
+                    <input type="email" name="{{ form.email.name }}" id="{{ form.email.id_for_label }}"
+                           class="form-control {% if form.email.errors %}is-invalid{% endif %}"
+                           value="{{ form.email.value|default:'' }}" required>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.nom.id_for_label }}" class="form-label">Nom</label>
+                    {{ form.nom.errors }}
+                    <input type="text" name="{{ form.nom.name }}" id="{{ form.nom.id_for_label }}"
+                           class="form-control {% if form.nom.errors %}is-invalid{% endif %}"
+                           value="{{ form.nom.value|default:'' }}">
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label for="{{ form.prenom.id_for_label }}" class="form-label">Prénom</label>
+                    {{ form.prenom.errors }}
+                    <input type="text" name="{{ form.prenom.name }}" id="{{ form.prenom.id_for_label }}"
+                           class="form-control {% if form.prenom.errors %}is-invalid{% endif %}"
+                           value="{{ form.prenom.value|default:'' }}">
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">Ajouter l'abonné</button>
+                <a href="{% url 'subscriber_list' %}" class="btn btn-secondary">Annuler</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %} 

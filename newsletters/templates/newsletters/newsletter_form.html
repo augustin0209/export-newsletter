@@ -1,0 +1,310 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.css" rel="stylesheet">
+<style>
+    .color-picker {
+        width: 50px;
+        height: 30px;
+        padding: 2px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+    }
+    .font-preview {
+        font-size: 16px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        margin-top: 5px;
+    }
+    .template-preview {
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        padding: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .template-preview:hover {
+        border-color: #007bff;
+        box-shadow: 0 0 5px rgba(0,123,255,0.3);
+    }
+    .template-preview.selected {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+    .template-preview img {
+        max-width: 100%;
+        height: auto;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="mb-0">{% if newsletter %}Modifier{% else %}Créer{% endif %} une newsletter</h2>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="newsletterForm">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="titre" class="form-label">Titre de la newsletter</label>
+                            <input type="text" class="form-control" id="titre" name="titre" value="{{ newsletter.titre|default:'' }}" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="objet" class="form-label">Objet de l'email</label>
+                            <input type="text" class="form-control" id="objet" name="objet" value="{{ newsletter.objet|default:'' }}" required>
+                        </div>
+
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="police" class="form-label">Police</label>
+                                <select class="form-control" id="police" name="police">
+                                    <option value="Arial" {% if newsletter.police == 'Arial' %}selected{% endif %}>Arial</option>
+                                    <option value="Times New Roman" {% if newsletter.police == 'Times New Roman' %}selected{% endif %}>Times New Roman</option>
+                                    <option value="Verdana" {% if newsletter.police == 'Verdana' %}selected{% endif %}>Verdana</option>
+                                    <option value="Helvetica" {% if newsletter.police == 'Helvetica' %}selected{% endif %}>Helvetica</option>
+                                    <option value="Georgia" {% if newsletter.police == 'Georgia' %}selected{% endif %}>Georgia</option>
+                                </select>
+                                <div class="font-preview" id="fontPreview">Aperçu de la police</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="couleur_texte" class="form-label">Couleur du texte</label>
+                                <input type="color" class="form-control color-picker" id="couleur_texte" name="couleur_texte" value="{{ newsletter.couleur_texte|default:'#000000' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="contenu_html" class="form-label">Contenu</label>
+                            <textarea class="form-control" id="contenu_html" name="contenu_html" rows="10">{{ newsletter.contenu_html|default:'' }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="contenu_text" class="form-label">Version texte (pour les clients mail ne supportant pas le HTML)</label>
+                            <textarea class="form-control" id="contenu_text" name="contenu_text" rows="5">{{ newsletter.contenu_text|default:'' }}</textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Modèles prédéfinis</label>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="template-preview" data-template="simple">
+                                        <h5>Simple</h5>
+                                        <p>Un design épuré et professionnel</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="template-preview" data-template="modern">
+                                        <h5>Moderne</h5>
+                                        <p>Un style contemporain avec des accents de couleur</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="template-preview" data-template="business">
+                                        <h5>Business</h5>
+                                        <p>Un format adapté aux communications professionnelles</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Options supplémentaires</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ajouter_signature" name="ajouter_signature" {% if newsletter.ajouter_signature %}checked{% endif %}>
+                                <label class="form-check-label" for="ajouter_signature">
+                                    Ajouter une signature
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" id="ajouter_social" name="ajouter_social" {% if newsletter.ajouter_social %}checked{% endif %}>
+                                <label class="form-check-label" for="ajouter_social">
+                                    Ajouter les liens vers les réseaux sociaux
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                {% if newsletter %}Mettre à jour{% else %}Créer{% endif %}
+                            </button>
+                            <a href="{% url 'newsletter_list' %}" class="btn btn-secondary">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Aperçu</h5>
+                </div>
+                <div class="card-body">
+                    <div id="preview" class="border p-3" style="min-height: 300px;">
+                        <!-- L'aperçu sera mis à jour en temps réel -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote-bs4.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Initialisation de l'éditeur Summernote
+    $('#contenu_html').summernote({
+        height: 300,
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'underline', 'clear']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ],
+        callbacks: {
+            onChange: function(contents) {
+                updatePreview();
+            }
+        }
+    });
+
+    // Charger le contenu existant si disponible
+    {% if newsletter %}
+        $('#contenu_html').summernote('code', '{{ newsletter.contenu_html|escapejs }}');
+        $('#police').val('{{ newsletter.police|escapejs }}');
+        $('#couleur_texte').val('{{ newsletter.couleur_texte|escapejs }}');
+        $('#ajouter_signature').prop('checked', '{{ newsletter.ajouter_signature|yesno:"true,false" }}' === 'true');
+        $('#ajouter_social').prop('checked', '{{ newsletter.ajouter_social|yesno:"true,false" }}' === 'true');
+    {% endif %}
+
+    // Mise à jour de l'aperçu de la police
+    $('#police').change(function() {
+        const selectedFont = $(this).val();
+        $('#fontPreview').css('font-family', selectedFont);
+        updatePreview();
+    });
+
+    // Mise à jour de l'aperçu de la couleur
+    $('#couleur_texte').change(function() {
+        updatePreview();
+    });
+
+    // Gestion des modèles prédéfinis
+    $('.template-preview').click(function() {
+        $('.template-preview').removeClass('selected');
+        $(this).addClass('selected');
+        
+        const template = $(this).data('template');
+        applyTemplate(template);
+    });
+
+    function applyTemplate(template) {
+        // Get the current HTML content from the editor
+        const rawExistingHtml = $('#contenu_html').summernote('code');
+        let extractedContent = '';
+        
+        // Use a temporary div to parse the existing HTML
+        const tempDiv = $('<div>').html(rawExistingHtml);
+        const contentArea = tempDiv.find('.newsletter-content-area');
+
+        if (contentArea.length) {
+            // If a template structure is detected, extract the content from its specific area
+            extractedContent = contentArea.html();
+        } else {
+            // If no template structure is detected, assume the entire content is user's original input
+            extractedContent = rawExistingHtml;
+        }
+
+        // Always get the title from the dedicated input field
+        const newsletterTitle = $('#titre').val() || 'Titre de la newsletter';
+
+        // Extract plain text for the text version, regardless of HTML complexity
+        const plainTextContent = $('<div>').html(extractedContent).text().trim();
+
+        const selectedFont = $('#police').val();
+        const selectedColor = $('#couleur_texte').val();
+        const logoUrl = '{% static "images/logo.png" %}'; // Placeholder for logo. Needs to be a static file.
+        const logoHtml = `<p style="text-align: center; margin-bottom: 20px;"><img src="${logoUrl}" alt="Company Logo" style="max-width: 150px; height: auto; display: block; margin: 0 auto; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); "></p>`;
+
+
+        switch(template) {
+            case 'simple':
+                newTemplateHtml = `
+                    <div style="font-family: ${selectedFont}, sans-serif; max-width: 600px; margin: 0 auto; color: ${selectedColor};">
+                        ${logoHtml}
+                        <h1 style="color: ${selectedColor}; border-bottom: 2px solid #eee; padding-bottom: 10px;">${newsletterTitle}</h1>
+                        <div class="newsletter-content-area">
+                            ${extractedContent || '<p>Contenu de votre newsletter...</p>'}
+                        </div>
+                    </div>
+                `;
+                break;
+            case 'modern':
+                newTemplateHtml = `
+                    <div style="font-family: ${selectedFont}, sans-serif; max-width: 600px; margin: 0 auto; background-color: #f8f9fa; padding: 20px; color: ${selectedColor};">
+                        ${logoHtml}
+                        <h1 style="color: ${selectedColor}; text-align: center;">${newsletterTitle}</h1>
+                        <div style="background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                            <div class="newsletter-content-area">
+                                ${extractedContent || '<p>Contenu de votre newsletter...</p>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+            case 'business':
+                newTemplateHtml = `
+                    <div style="font-family: ${selectedFont}, sans-serif; max-width: 600px; margin: 0 auto; color: ${selectedColor};">
+                        ${logoHtml}
+                        <div style="border-left: 4px solid #333; padding-left: 20px;">
+                            <h1 style="color: ${selectedColor};">${newsletterTitle}</h1>
+                            <div style="color: ${selectedColor};" class="newsletter-content-area">
+                                ${extractedContent || '<p>Contenu de votre newsletter...</p>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                break;
+        }
+
+        // Apply the new template to the editor
+        $('#contenu_html').summernote('code', newTemplateHtml);
+        
+        // Update the text version if it's empty or was previously template-generated
+        if (!$('#contenu_text').val() || rawExistingHtml.includes('newsletter-content-area')) {
+            $('#contenu_text').val(plainTextContent);
+        }
+        
+        updatePreview();
+    }
+
+    function updatePreview() {
+        const content = $('#contenu_html').summernote('code');
+        const font = $('#police').val();
+        const color = $('#couleur_texte').val();
+        
+        $('#preview').html(`
+            <div style="font-family: ${font}, sans-serif; color: ${color};">
+                ${content}
+            </div>
+        `);
+    }
+
+    // Mise à jour initiale de l'aperçu
+    updatePreview();
+});
+</script>
+{% endblock %} 

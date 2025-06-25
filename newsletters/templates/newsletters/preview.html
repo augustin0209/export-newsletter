@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+
+{% block title %}Prévisualisation - {{ newsletter.titre }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Prévisualisation : {{ newsletter.titre }}</h1>
+        <div>
+            <a href="{% url 'newsletter_edit' newsletter.id %}" class="btn btn-primary">
+                <i class="fas fa-edit"></i> Modifier
+            </a>
+            <a href="{% url 'newsletter_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Retour
+            </a>
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Informations</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Objet :</strong> {{ newsletter.objet }}</p>
+                    <p><strong>Police :</strong> {{ newsletter.police }}</p>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Statut :</strong> 
+                        <span class="badge {% if newsletter.statut == 'envoye' %}bg-success{% elif newsletter.statut == 'en_cours' %}bg-warning{% elif newsletter.statut == 'erreur' %}bg-danger{% else %}bg-secondary{% endif %}">
+                            {{ newsletter.statut }}
+                        </span>
+                    </p>
+                    <p><strong>Date de création :</strong> {{ newsletter.date_creation|date:"d/m/Y H:i" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Aperçu</h5>
+        </div>
+        <div class="card-body">
+            <div class="newsletter-preview" style="font-family: {{ newsletter.police }}, sans-serif;">
+                {{ newsletter.contenu_html|safe }}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.newsletter-preview {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    background-color: white;
+}
+
+.newsletter-preview img {
+    max-width: 100%;
+    height: auto;
+}
+
+.newsletter-preview table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 15px 0;
+}
+
+.newsletter-preview th,
+.newsletter-preview td {
+    padding: 8px;
+    border: 1px solid #ddd;
+}
+
+.newsletter-preview th {
+    background-color: #f5f5f5;
+}
+</style>
+{% endblock %} 

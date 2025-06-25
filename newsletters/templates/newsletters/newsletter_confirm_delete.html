@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Supprimer la newsletter</h2>
+    
+    <div class="alert alert-danger mt-4">
+        <h4>Êtes-vous sûr de vouloir supprimer cette newsletter ?</h4>
+        <p>Cette action est irréversible.</p>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">{{ newsletter.titre }}</h5>
+            <p class="card-text">
+                <strong>Objet :</strong> {{ newsletter.objet }}<br>
+                <strong>Date de création :</strong> {{ newsletter.date_creation|date:"d/m/Y H:i" }}<br>
+                <strong>Statut :</strong> {{ newsletter.statut }}
+            </p>
+        </div>
+    </div>
+    
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+        <a href="{% url 'newsletter_detail' pk=newsletter.pk %}" class="btn btn-secondary">Annuler</a>
+    </form>
+</div>
+{% endblock %} 
