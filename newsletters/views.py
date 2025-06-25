@@ -365,9 +365,11 @@ def newsletter_send(request, pk):
                             msg['From'] = f"{settings.EMAIL_HOST_USER}"
                             msg['To'] = abonne.email
 
-                            part1 = MIMEText(newsletter.contenu_text, 'plain', 'utf-8')
+                            text_content = newsletter.contenu_text or strip_tags(final_html_content)
+                            text_part = MIMEText(text_content, 'plain', 'utf-8')
+                            msg.attach(text_part)
+
                             part2 = MIMEText(final_html_content, 'html', 'utf-8')
-                            msg.attach(part1)
                             msg.attach(part2)
 
                             server.send_message(msg)
@@ -801,8 +803,8 @@ def send_newsletter_email(newsletter, subscriber):
         msg.attach(html_part)
         
         # Ajout du contenu texte
-        text_content = newsletter.contenu_text
-        text_part = MIMEText(text_content, 'plain')
+        text_content = newsletter.contenu_text or strip_tags(newsletter.contenu_html)
+        text_part = MIMEText(text_content, 'plain', 'utf-8')
         msg.attach(text_part)
         
         # Connexion au serveur SMTP
