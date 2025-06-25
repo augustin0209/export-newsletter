@@ -369,8 +369,9 @@ def newsletter_send(request, pk):
                             text_part = MIMEText(text_content, 'plain', 'utf-8')
                             msg.attach(text_part)
 
-                            part2 = MIMEText(final_html_content, 'html', 'utf-8')
-                            msg.attach(part2)
+                            html_content = ensure_full_html(final_html_content, newsletter.titre)
+                            html_part = MIMEText(html_content, 'html', 'utf-8')
+                            msg.attach(html_part)
 
                             server.send_message(msg)
 
@@ -798,12 +799,16 @@ def send_newsletter_email(newsletter, subscriber):
         msg['To'] = to_email
         
         # Ajout du contenu HTML
-        html_content = newsletter.contenu_html
-        html_part = MIMEText(html_content, 'html')
+        final_html_content = newsletter.contenu_html.replace(
+            '{% static "images/logo.png" %}',
+            'https://assets.zyrosite.com/cdn-cgi/image/format=auto,w=700,fit=crop,q=95/mv0D1WKo0JFyKNba/logo-flexip-700-x-500-px-1500-x-500-px-mk3zp6PjxDSyPO6O.png'
+        )
+        html_content = ensure_full_html(final_html_content, newsletter.titre)
+        html_part = MIMEText(html_content, 'html', 'utf-8')
         msg.attach(html_part)
         
         # Ajout du contenu texte
-        text_content = newsletter.contenu_text or strip_tags(newsletter.contenu_html)
+        text_content = newsletter.contenu_text or strip_tags(html_content)
         text_part = MIMEText(text_content, 'plain', 'utf-8')
         msg.attach(text_part)
         
@@ -868,4 +873,19 @@ def planifier_envoi(request, newsletter_id):
     except Exception as e:
         messages.error(request, f"Erreur lors de la planification: {str(e)}")
     
-    return redirect('newsletter_list') 
+    return redirect('newsletter_list')
+
+def ensure_full_html(html_content, titre="Newsletter"):
+    """Ajoute les balises HTML complètes si besoin"""
+    if "<html" in html_content.lower():
+        return html_content
+    return f"""<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>{titre}</title>
+  </head>
+  <body>
+    {html_content}
+  </body>
+</html>""" 
